@@ -43,10 +43,31 @@ class Player:
         self.load_assets()
         
     def load_assets(self):
-        """Load player sprite (placeholder for now)"""
-        # TODO: Load actual sprite when assets are ready
-        self.image = pygame.Surface((self.width, self.height))
-        self.image.fill((0, 200, 255))  # Cyan placeholder
+        """Load player sprite"""
+        import os
+        player_path = os.path.join("assets", "images", "main-spacecraft.png")
+        shield_path = os.path.join("assets", "images", "shield.png")
+        
+        if os.path.exists(player_path):
+            try:
+                loaded_img = pygame.image.load(player_path).convert_alpha()
+                self.image = pygame.transform.scale(loaded_img, (self.width, self.height))
+            except:
+                self.image = pygame.Surface((self.width, self.height))
+                self.image.fill((0, 200, 255))
+        else:
+            self.image = pygame.Surface((self.width, self.height))
+            self.image.fill((0, 200, 255))
+        
+        # Load shield image
+        if os.path.exists(shield_path):
+            try:
+                self.shield_image = pygame.image.load(shield_path).convert_alpha()
+                self.shield_image = pygame.transform.scale(self.shield_image, (self.width + 20, self.height + 20))
+            except:
+                self.shield_image = None
+        else:
+            self.shield_image = None
         
     def update(self):
         """Update player state"""
@@ -172,8 +193,13 @@ class Player:
         
         # Draw shield effect if active
         if self.shield_active:
-            pygame.draw.circle(screen, (100, 200, 255), (int(self.x), int(self.y)), 
-                             self.width // 2 + 10, 3)
+            if self.shield_image:
+                shield_x = self.rect.x - 10
+                shield_y = self.rect.y - 10
+                screen.blit(self.shield_image, (shield_x, shield_y))
+            else:
+                pygame.draw.circle(screen, (100, 200, 255), (int(self.x), int(self.y)), 
+                                 self.width // 2 + 10, 3)
                              
         # Draw bullets
         for bullet in self.bullets:

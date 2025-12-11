@@ -15,8 +15,8 @@ class Bullet:
         self.speed_x = speed_x
         self.speed_y = speed_y
         self.owner = owner  # "player" or "enemy"
-        self.width = 5
-        self.height = 15
+        self.width = 8
+        self.height = 16
         self.damage = 10
         
         # Create collision rect
@@ -28,6 +28,27 @@ class Bullet:
             self.color = (100, 255, 100)  # Green
         else:
             self.color = (255, 100, 100)  # Red
+        
+        # Load bullet image
+        self.image = None
+        self.load_image()
+    
+    def load_image(self):
+        """Load bullet sprite"""
+        import os
+        bullet_path = os.path.join("assets", "images", "bullet1.png")
+        
+        if os.path.exists(bullet_path):
+            try:
+                loaded_img = pygame.image.load(bullet_path).convert_alpha()
+                self.image = pygame.transform.scale(loaded_img, (self.width, self.height))
+                # Rotate enemy bullets 180 degrees
+                if self.owner == "enemy":
+                    self.image = pygame.transform.rotate(self.image, 180)
+            except:
+                self.image = None
+        else:
+            self.image = None
             
     def update(self):
         """Update bullet position"""
@@ -40,9 +61,12 @@ class Bullet:
         
     def draw(self, screen):
         """Draw the bullet"""
-        pygame.draw.rect(screen, self.color, self.rect)
-        # Add glow effect
-        pygame.draw.rect(screen, (255, 255, 255), self.rect, 1)
+        if self.image:
+            screen.blit(self.image, (self.rect.x, self.rect.y))
+        else:
+            pygame.draw.rect(screen, self.color, self.rect)
+            # Add glow effect
+            pygame.draw.rect(screen, (255, 255, 255), self.rect, 1)
 
 
 class HomingMissile(Bullet):

@@ -68,8 +68,28 @@ class Enemy:
             self.speed_y = 4
             
     def load_assets(self):
-        """Load enemy sprite (placeholder)"""
-        # TODO: Load actual sprites when assets are ready
+        """Load enemy sprite"""
+        import os
+        basic_path = os.path.join("assets", "images", "basic-enemy.png")
+        enemy2_path = os.path.join("assets", "images", "enemy-2.png")
+        
+        # Determine which image to use based on enemy type
+        if self.enemy_type in ["basic", "kamikaze"]:
+            image_path = basic_path
+        else:  # zigzag, elite
+            image_path = enemy2_path
+        
+        if os.path.exists(image_path):
+            try:
+                loaded_img = pygame.image.load(image_path).convert_alpha()
+                self.image = pygame.transform.scale(loaded_img, (self.width, self.height))
+            except:
+                self._create_placeholder_image()
+        else:
+            self._create_placeholder_image()
+    
+    def _create_placeholder_image(self):
+        """Create placeholder colored rectangle"""
         self.image = pygame.Surface((self.width, self.height))
         if self.enemy_type == "basic":
             self.image.fill((255, 100, 100))  # Red
