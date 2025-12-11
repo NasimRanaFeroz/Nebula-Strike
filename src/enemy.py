@@ -1,4 +1,7 @@
-import pygame
+try:
+    import pygame
+except ImportError:
+    import pygame_ce as pygame
 import random
 import math
 from src.bullet import Bullet
