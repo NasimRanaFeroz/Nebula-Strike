@@ -259,23 +259,20 @@ class LevelManager:
         self.max_levels = 3
         self.all_levels_complete = False
         
-    def update(self):
+    def update(self, enemy_manager):
         """Update current level and return enemies to spawn"""
         if self.all_levels_complete:
             return []
             
-        enemies_to_spawn = []
+        # Update current level with enemy manager
+        enemies_to_spawn = self.current_level.update(enemy_manager)
         
-        # Update current level (enemy_manager passed in main game loop)
-        # For now, return empty list - will be integrated with main game
-        
-        # Check for level completion
-        if self.current_level.is_completed():
-            if self.current_level_num >= self.max_levels:
-                self.all_levels_complete = True
-            else:
-                # Advance to next level
-                self.advance_level()
+        # Check for level completion (all enemies and boss defeated)
+        if self.current_level.is_completed() and not enemy_manager.enemies:
+            boss = self.current_level.get_boss()
+            if boss is None or boss.health <= 0:
+                if self.current_level_num >= self.max_levels:
+                    self.all_levels_complete = True
                 
         return enemies_to_spawn
         

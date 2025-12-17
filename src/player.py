@@ -85,8 +85,8 @@ class Player:
             self.y += self.speed
             
         # Keep player on screen
-        self.x = max(self.width // 2, min(800 - self.width // 2, self.x))
-        self.y = max(self.height // 2, min(600 - self.height // 2, self.y))
+        self.x = max(self.width // 2, min(600 - self.width // 2, self.x))
+        self.y = max(self.height // 2, min(800 - self.height // 2, self.y))
         
         # Update rect position
         self.rect.x = self.x - self.width // 2
@@ -110,7 +110,7 @@ class Player:
         for bullet in self.bullets[:]:
             bullet.update()
             # Remove bullets that are off screen
-            if bullet.y < -10 or bullet.y > 610:
+            if bullet.y < -10 or bullet.y > 810:
                 self.bullets.remove(bullet)
                 
     def shoot(self):

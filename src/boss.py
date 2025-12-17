@@ -59,13 +59,28 @@ class Boss:
             self.height = 150
             
     def load_assets(self):
-        """Load boss sprite (placeholder)"""
-        # TODO: Load actual sprites when assets are ready
-        self.image = pygame.Surface((self.width, self.height))
-        if self.boss_type == "mini":
-            self.image.fill((255, 150, 0))  # Orange
-        elif self.boss_type == "final":
-            self.image.fill((200, 0, 200))  # Purple
+        """Load boss sprite"""
+        import os
+        boss_image_path = os.path.join("assets", "images", "enemyUFO.png")
+        
+        if os.path.exists(boss_image_path):
+            try:
+                self.image = pygame.image.load(boss_image_path).convert_alpha()
+                self.image = pygame.transform.scale(self.image, (self.width, self.height))
+            except:
+                # Fallback to colored surface
+                self.image = pygame.Surface((self.width, self.height))
+                if self.boss_type == "mini":
+                    self.image.fill((255, 150, 0))  # Orange
+                elif self.boss_type == "final":
+                    self.image.fill((200, 0, 200))  # Purple
+        else:
+            # Fallback to colored surface
+            self.image = pygame.Surface((self.width, self.height))
+            if self.boss_type == "mini":
+                self.image.fill((255, 150, 0))  # Orange
+            elif self.boss_type == "final":
+                self.image.fill((200, 0, 200))  # Purple
             
     def update(self):
         """Update boss behavior"""
