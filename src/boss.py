@@ -61,7 +61,7 @@ class Boss:
     def load_assets(self):
         """Load boss sprite"""
         import os
-        boss_image_path = os.path.join("assets", "images", "enemyUFO.png")
+        boss_image_path = os.path.join("assets", "images", "basic-enemy.png")
         
         if os.path.exists(boss_image_path):
             try:
