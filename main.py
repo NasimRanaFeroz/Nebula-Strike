@@ -343,7 +343,7 @@ class Game:
             self.draw_background("menu")
             self.draw_menu()
         elif self.game_state == "level_select":
-            self.draw_background("menu")
+            self.screen.fill(BLACK)
             self.draw_level_select()
         elif self.game_state == "playing":
             self.draw_background("game")
@@ -366,6 +366,7 @@ class Game:
         font_large = pygame.font.Font(None, 72)
         font_medium = pygame.font.Font(None, 48)
         font_small = pygame.font.Font(None, 36)
+        font_author = pygame.font.Font(None, 36)
         
         # Draw logo if available
         logo_top_padding = 60
@@ -383,6 +384,18 @@ class Game:
             title = font_large.render("NEBULA STRIKE", True, BLUE)
             self.screen.blit(title, (SCREEN_WIDTH // 2 - title.get_width() // 2, logo_top_padding))
         
+        # Author name
+        author_text = "By Nasim Rana Feroz"
+        # Draw black stroke
+        author_stroke = font_author.render(author_text, True, BLACK)
+        for offset_x in [-2, 0, 2]:
+            for offset_y in [-2, 0, 2]:
+                if offset_x != 0 or offset_y != 0:
+                    self.screen.blit(author_stroke, (SCREEN_WIDTH // 2 - author_stroke.get_width() // 2 + offset_x, 320 + offset_y))
+        # Draw white text on top
+        author = font_author.render(author_text, True, WHITE)
+        self.screen.blit(author, (SCREEN_WIDTH // 2 - author.get_width() // 2, 320))
+        
         subtitle = font_medium.render("Press SPACE to Start", True, WHITE)
         self.screen.blit(subtitle, (SCREEN_WIDTH // 2 - subtitle.get_width() // 2, 420))
         
@@ -392,42 +405,56 @@ class Game:
         
     def draw_level_select(self):
         """Draw level selection screen"""
-        font_title = pygame.font.Font(None, 72)
-        font_level = pygame.font.Font(None, 56)
-        font_desc = pygame.font.Font(None, 32)
-        font_small = pygame.font.Font(None, 26)
+        font_title = pygame.font.Font(None, 56)
+        font_level = pygame.font.Font(None, 42)
+        font_desc = pygame.font.Font(None, 26)
+        font_small = pygame.font.Font(None, 22)
+        
+        # Animated stars in background
+        for i in range(100):
+            x = (i * 47 + self.bg_scroll // 2) % SCREEN_WIDTH
+            y = (i * 73 + self.bg_scroll) % SCREEN_HEIGHT
+            size = 1 + (i % 3)
+            brightness = 100 + (i % 156)
+            pygame.draw.circle(self.screen, (brightness, brightness, brightness), (x, y), size)
         
         # Title with glow effect
-        title_padding_top = 80
-        title_text = "CHOOSE YOUR MISSION"
-        title = font_title.render(title_text, True, (100, 200, 255))
-        title_shadow = font_title.render(title_text, True, (0, 50, 100))
+        title_padding_top = 40
+        title_text = "SELECT MISSION"
         
-        title_x = SCREEN_WIDTH // 2 - title.get_width() // 2
-        # Draw shadow/glow
-        for offset in [(2, 2), (-2, 2), (2, -2), (-2, -2)]:
-            self.screen.blit(title_shadow, (title_x + offset[0], title_padding_top + offset[1]))
-        self.screen.blit(title, (title_x, title_padding_top))
+        # Create glowing title effect
+        for glow_size in range(5, 0, -1):
+            glow_alpha = 30
+            title_glow = font_title.render(title_text, True, (0, 150, 255))
+            title_glow.set_alpha(glow_alpha)
+            self.screen.blit(title_glow, (SCREEN_WIDTH // 2 - title_glow.get_width() // 2 - glow_size, 
+                                          title_padding_top - glow_size))
         
-        # Decorative line under title
-        line_y = title_padding_top + 70
-        pygame.draw.line(self.screen, (100, 200, 255), 
-                        (SCREEN_WIDTH // 2 - 150, line_y), 
-                        (SCREEN_WIDTH // 2 + 150, line_y), 3)
+        title = font_title.render(title_text, True, (100, 220, 255))
+        self.screen.blit(title, (SCREEN_WIDTH // 2 - title.get_width() // 2, title_padding_top))
         
-        # Level cards with modern design
-        y_start = 200
-        y_spacing = 160
-        card_width = 500
-        card_height = 120
+        # Decorative lines under title
+        line_y = title_padding_top + 60
+        pygame.draw.line(self.screen, (100, 220, 255), 
+                        (SCREEN_WIDTH // 2 - 140, line_y), 
+                        (SCREEN_WIDTH // 2 + 140, line_y), 3)
+        pygame.draw.line(self.screen, (50, 110, 180), 
+                        (SCREEN_WIDTH // 2 - 140, line_y + 2), 
+                        (SCREEN_WIDTH // 2 + 140, line_y + 2), 1)
+        
+        # Level cards with enhanced design
+        y_start = 150
+        y_spacing = 140
+        card_width = 480
+        card_height = 100
         
         level_data = [
-            {"name": "Level 1", "subtitle": "Initial Contact", 
-             "difficulty": "EASY", "color": (0, 255, 100)},
-            {"name": "Level 2", "subtitle": "Advanced Threats", 
-             "difficulty": "MEDIUM", "color": (255, 200, 0)},
-            {"name": "Level 3", "subtitle": "Final Showdown", 
-             "difficulty": "HARD", "color": (255, 50, 50)}
+            {"name": "LEVEL 1", "subtitle": "Initial Contact", 
+             "difficulty": "★ EASY", "color": (0, 255, 150), "accent": (0, 180, 100)},
+            {"name": "LEVEL 2", "subtitle": "Advanced Threats", 
+             "difficulty": "★★ MEDIUM", "color": (255, 220, 0), "accent": (200, 150, 0)},
+            {"name": "LEVEL 3", "subtitle": "Final Showdown", 
+             "difficulty": "★★★ HARD", "color": (255, 80, 80), "accent": (200, 30, 30)}
         ]
         
         for i, data in enumerate(level_data):
@@ -437,38 +464,65 @@ class Game:
             # Create card surface with transparency
             card_surface = pygame.Surface((card_width, card_height), pygame.SRCALPHA)
             
-            # Draw card background with gradient effect
+            # Draw card background with dark gradient
             for j in range(card_height):
-                alpha = int(100 + (j / card_height) * 50)
-                color = (*data["color"], alpha)
+                alpha = int(120 + (j / card_height) * 60)
+                dark_val = int(20 + (j / card_height) * 20)
+                color = (dark_val, dark_val, dark_val, alpha)
                 pygame.draw.rect(card_surface, color, (0, j, card_width, 1))
             
-            # Draw border
-            pygame.draw.rect(card_surface, data["color"], (0, 0, card_width, card_height), 4)
+            # Draw accent line on left
+            for y_offset in range(card_height):
+                alpha = int(180 + (y_offset / card_height) * 75)
+                accent_color = (*data["accent"], alpha)
+                pygame.draw.rect(card_surface, accent_color, (0, y_offset, 6, 1))
+            
+            # Draw glowing border
+            pygame.draw.rect(card_surface, data["color"], (0, 0, card_width, card_height), 2)
+            
+            # Inner glow
+            inner_glow = pygame.Surface((card_width - 4, card_height - 4), pygame.SRCALPHA)
+            pygame.draw.rect(inner_glow, (*data["accent"], 40), (0, 0, card_width - 4, card_height - 4), 1)
+            card_surface.blit(inner_glow, (2, 2))
             
             # Blit card to screen
             self.screen.blit(card_surface, (card_x, card_y))
             
-            # Level number (large)
+            # Level number badge
+            badge_size = 55
+            badge_x = card_x + 20
+            badge_y = card_y + (card_height - badge_size) // 2
+            
+            # Badge background circle
+            pygame.draw.circle(self.screen, data["accent"], (badge_x + badge_size // 2, badge_y + badge_size // 2), badge_size // 2)
+            pygame.draw.circle(self.screen, data["color"], (badge_x + badge_size // 2, badge_y + badge_size // 2), badge_size // 2, 2)
+            
+            # Number in badge
             level_num = font_level.render(f"{i + 1}", True, WHITE)
-            self.screen.blit(level_num, (card_x + 30, card_y + 15))
+            num_x = badge_x + (badge_size - level_num.get_width()) // 2
+            num_y = badge_y + (badge_size - level_num.get_height()) // 2
+            self.screen.blit(level_num, (num_x, num_y))
             
             # Level name and subtitle
-            name_text = font_level.render(data["name"], True, WHITE)
-            subtitle_text = font_desc.render(data["subtitle"], True, (200, 200, 200))
+            name_text = font_level.render(data["name"], True, data["color"])
+            subtitle_text = font_desc.render(data["subtitle"], True, (180, 180, 180))
             difficulty_text = font_small.render(data["difficulty"], True, data["color"])
             
-            self.screen.blit(name_text, (card_x + 100, card_y + 20))
-            self.screen.blit(subtitle_text, (card_x + 100, card_y + 60))
-            self.screen.blit(difficulty_text, (card_x + card_width - 120, card_y + 45))
+            self.screen.blit(name_text, (card_x + 95, card_y + 18))
+            self.screen.blit(subtitle_text, (card_x + 95, card_y + 55))
+            self.screen.blit(difficulty_text, (card_x + card_width - 110, card_y + 40))
         
         # Instructions at bottom with styled background
-        instruction_y = SCREEN_HEIGHT - 60
-        instruction = font_small.render("Press 1, 2, or 3 to select | ESC to go back", True, WHITE)
-        instruction_bg = pygame.Surface((instruction.get_width() + 40, 40), pygame.SRCALPHA)
-        instruction_bg.fill((0, 0, 0, 150))
+        instruction_y = SCREEN_HEIGHT - 50
+        instruction = font_small.render("Press 1, 2, or 3 to select | ESC to go back", True, (180, 180, 180))
+        
+        # Instruction background
+        instruction_bg = pygame.Surface((instruction.get_width() + 30, 35), pygame.SRCALPHA)
+        instruction_bg.fill((30, 30, 30, 200))
+        pygame.draw.rect(instruction_bg, (100, 220, 255), (0, 0, instruction.get_width() + 30, 35), 2)
+        
         self.screen.blit(instruction_bg, 
-                        (SCREEN_WIDTH // 2 - instruction.get_width() // 2 - 20, instruction_y - 10))
+                        (SCREEN_WIDTH // 2 - instruction.get_width() // 2 - 15, instruction_y - 10))
         self.screen.blit(instruction, (SCREEN_WIDTH // 2 - instruction.get_width() // 2, instruction_y))
         
     def draw_game(self):

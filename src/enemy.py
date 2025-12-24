@@ -124,17 +124,28 @@ class Enemy:
         self.rect.x = self.x - self.width // 2
         self.rect.y = self.y - self.height // 2
         
-        # Shooting behavior
-        if self.shoot_cooldown > 0:
-            self.shoot_cooldown -= 1
-        else:
-            if self.enemy_type in ["elite", "zigzag"] and random.random() < 0.02:
-                self.shoot()
+        # Shooting behavior - only shoot when in visible area
+        if self.y > 0 and self.y < 800:
+            if self.shoot_cooldown > 0:
+                self.shoot_cooldown -= 1
+            else:
+                # Different shooting chances for different enemy types
+                shoot_chance = 0
+                if self.enemy_type == "elite":
+                    shoot_chance = 0.08  # 8% chance per frame
+                elif self.enemy_type == "zigzag":
+                    shoot_chance = 0.06  # 6% chance per frame
+                elif self.enemy_type == "basic":
+                    shoot_chance = 0.04  # 4% chance per frame
+                # kamikaze enemies don't shoot
+                
+                if shoot_chance > 0 and random.random() < shoot_chance:
+                    self.shoot()
                 
         # Update bullets
         for bullet in self.bullets[:]:
             bullet.update()
-            if bullet.y > 610 or bullet.y < -10:
+            if bullet.y > 810 or bullet.y < -10:
                 self.bullets.remove(bullet)
                 
     def shoot(self):
